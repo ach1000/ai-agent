@@ -45,7 +45,7 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 |---|---|
 | `main.py` | Entry point and all application logic for the AI agent |
 | `prompts.py` | Contains `system_prompt` — the system instruction passed to Gemini (now a helpful coding agent prompt) |
-| `functions/call_function.py` | Defines `available_functions` (`types.Tool`) listing all `FunctionDeclaration` schemas for the LLM |
+| `functions/call_function.py` | Defines `available_functions` (`types.Tool`) listing all four `FunctionDeclaration` schemas for the LLM |
 | `pyproject.toml` | Project metadata and dependency declarations (managed by `uv`) |
 | `Makefile` | Convenience targets: `make sync`, `make run`, `make test`, `make calculator_test`, `make calculator_run` |
 | `config.py` | Configuration constants (e.g., `MAX_FILE_CHARS`) |
@@ -59,9 +59,9 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 | `calculator/pkg/render.py` | JSON output formatting utility |
 | `functions/` | **Agent tool functions** — functions the AI agent can call |
 | `functions/get_files_info.py` | Lists directory contents with metadata (name, size, is_dir) with path validation; also exports `schema_get_files_info` (`types.FunctionDeclaration`) |
-| `functions/get_file_content.py` | Reads file contents with truncation at 10k characters and path validation |
-| `functions/write_file.py` | Writes/overwrites files with path validation and automatic directory creation |
-| `functions/run_python_file.py` | Executes Python files with path validation and 30-second timeout |
+| `functions/get_file_content.py` | Reads file contents with truncation at 10k characters and path validation; also exports `schema_get_file_content` (`types.FunctionDeclaration`) |
+| `functions/write_file.py` | Writes/overwrites files with path validation and automatic directory creation; also exports `schema_write_file` (`types.FunctionDeclaration`) |
+| `functions/run_python_file.py` | Executes Python files with path validation and 30-second timeout; also exports `schema_run_python_file` (`types.FunctionDeclaration`) |
 | `test_get_files_info.py` | Unit tests for the `get_files_info` function (4 tests) |
 | `test_get_file_content.py` | Unit tests for the `get_file_content` function (5 tests, creates temporary test files) |
 | `test_write_file.py` | Unit tests for the `write_file` function (3 tests, with cleanup) |

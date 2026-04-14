@@ -12,6 +12,7 @@ test:
 	uv run test_get_file_content.py
 	uv run test_write_file.py
 	uv run test_run_python_file.py
+	uv run test_function_schemas.py
 
 calculator_test:
 	uv run calculator/tests.py
