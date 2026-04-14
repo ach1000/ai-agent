@@ -7,6 +7,11 @@ class TestGetFilesInfo(unittest.TestCase):
         """Test listing the calculator root directory"""
         result = get_files_info("calculator", ".")
         
+        print(f"\nget_files_info('calculator', '.'):")
+        print("Result for '.' directory:")
+        for line in result.split("\n"):
+            print(f"  {line}")
+        
         # Should not be an error
         self.assertFalse(result.startswith("Error:"))
         
@@ -22,6 +27,11 @@ class TestGetFilesInfo(unittest.TestCase):
     def test_calculator_pkg_subdirectory(self):
         """Test listing the calculator/pkg subdirectory"""
         result = get_files_info("calculator", "pkg")
+        
+        print(f"\nget_files_info('calculator', 'pkg'):")
+        print("Result for 'pkg' directory:")
+        for line in result.split("\n"):
+            print(f"  {line}")
         
         # Should not be an error
         self.assertFalse(result.startswith("Error:"))
@@ -42,6 +52,11 @@ class TestGetFilesInfo(unittest.TestCase):
         """Test that absolute paths outside working_directory are blocked"""
         result = get_files_info("calculator", "/bin")
         
+        print(f"\nget_files_info('calculator', '/bin'):")
+        print("Result for '/bin' directory:")
+        for line in result.split("\n"):
+            print(f"  {line}")
+        
         # Should return an error string
         self.assertTrue(result.startswith("Error:"))
         self.assertIn("outside the permitted working directory", result)
@@ -49,6 +64,11 @@ class TestGetFilesInfo(unittest.TestCase):
     def test_parent_directory_escape_attempt(self):
         """Test that parent directory escape attempts are blocked"""
         result = get_files_info("calculator", "../")
+        
+        print(f"\nget_files_info('calculator', '../'):")
+        print("Result for '../' directory:")
+        for line in result.split("\n"):
+            print(f"  {line}")
         
         # Should return an error string
         self.assertTrue(result.startswith("Error:"))
