@@ -27,17 +27,21 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 |---|---|
 | `main.py` | Entry point and all application logic for the AI agent |
 | `pyproject.toml` | Project metadata and dependency declarations (managed by `uv`) |
-| `Makefile` | Convenience targets: `make sync` (install deps) and `make run` (run the program) |
+| `Makefile` | Convenience targets: `make sync`, `make run`, `make test`, `make calculator_test`, `make calculator_run` |
+| `config.py` | Configuration constants (e.g., `MAX_FILE_CHARS`) |
 | `.env` | **Not committed.** Must contain `GEMINI_API_KEY=<your key>` |
 | `PROJECT.md` | This file — agent knowledge base |
 | `calculator/` | **Test project for the AI agent** — a command-line calculator app |
 | `calculator/main.py` | CLI entry point for the calculator app |
 | `calculator/tests.py` | Unit tests for the calculator (9 tests, all passing) |
+| `calculator/lorem.txt` | Lorem ipsum text file (>20k chars) for testing file truncation |
 | `calculator/pkg/calculator.py` | Core `Calculator` class with operator precedence evaluation |
 | `calculator/pkg/render.py` | JSON output formatting utility |
 | `functions/` | **Agent tool functions** — functions the AI agent can call |
 | `functions/get_files_info.py` | Lists directory contents with metadata (name, size, is_dir) with path validation |
-| `test_get_files_info.py` | Test harness for the `get_files_info` function |
+| `functions/get_file_content.py` | Reads file contents with truncation at 10k characters and path validation |
+| `test_get_files_info.py` | Unit tests for the `get_files_info` function (4 tests) |
+| `test_get_file_content.py` | Unit tests for the `get_file_content` function (5 tests) |
 
 ---
 
@@ -114,6 +118,38 @@ Lists the contents of a directory with metadata (file name, size in bytes, and w
 Or an error string if the target directory is invalid or outside the working directory.
 
 **Test:** Run `uv run test_get_files_info.py` to verify the function.
+
+### `get_file_content(working_directory, file_path)`
+
+Reads and returns the contents of a file relative to a working_directory.
+
+**Security features:**
+- The `working_directory` parameter restricts file access. Absolute paths or paths that escape the working directory (e.g., `../../../etc/passwd`) are blocked.
+- Files are read with a maximum character limit (`MAX_FILE_CHARS = 10000`) to prevent token exhaustion when sending large files to the LLM.
+- If a file is larger than the limit, it is truncated with a message indicating the truncation point.
+
+**Returns:** The file contents as a string (up to 10,000 characters), or an error string if the file is outside the working directory, doesn't exist, or is not a regular file.
+
+**Example output:**
+```
+# For a small file:
+import sys
+...
+
+# For a large file:
+Lorem ipsum dolor sit amet...
+[...File "lorem.txt" truncated at 10000 characters]
+```
+
+**Test:** Run `uv run test_get_file_content.py` to verify the function.
+
+---
+
+## Configuration
+
+| File | Purpose |
+|---|---|
+| `config.py` | Configuration constants (e.g., `MAX_FILE_CHARS = 10000` for file truncation limit) |
 
 ---
 

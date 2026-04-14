@@ -9,6 +9,7 @@ run:
 test:
 	uv run calculator/tests.py
 	uv run test_get_files_info.py
+	uv run test_get_file_content.py
 
 calculator_test:
 	uv run calculator/tests.py
