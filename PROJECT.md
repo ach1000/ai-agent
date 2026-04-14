@@ -44,6 +44,7 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 | File/Dir | Purpose |
 |---|---|
 | `main.py` | Entry point and all application logic for the AI agent |
+| `prompts.py` | Contains `system_prompt` — the hard-coded system instruction passed to Gemini |
 | `pyproject.toml` | Project metadata and dependency declarations (managed by `uv`) |
 | `Makefile` | Convenience targets: `make sync`, `make run`, `make test`, `make calculator_test`, `make calculator_run` |
 | `config.py` | Configuration constants (e.g., `MAX_FILE_CHARS`) |
@@ -89,7 +90,7 @@ Python ≥ 3.13 is required.
 ## Code Structure
 
 - `main()` — entry point: parses args (positional `user_prompt` and optional `--verbose`), loads env, builds client and message list, calls `generate_content()`.
-- `generate_content(client, messages, verbose=False)` — makes the API call, validates metadata, prints token usage (only when `verbose=True`), and prints the response text.
+- `generate_content(client, messages, verbose=False)` — makes the API call with `system_instruction=system_prompt` via `types.GenerateContentConfig`, validates metadata, prints token usage (only when `verbose=True`), and prints the response text.
 
 ---
 
