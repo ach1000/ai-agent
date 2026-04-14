@@ -4,6 +4,24 @@
 
 ---
 
+## Quick Start
+
+**Setup & Testing:**
+```bash
+make sync           # Install dependencies (run once)
+make test           # Run all 27 tests (verify everything works)
+make run            # Try the AI agent with a sample prompt
+```
+
+**Available Makefile targets:**
+- `make sync` — Install dependencies into `.venv/`
+- `make run` — Run the agent with default prompt
+- `make test` — Run all unit tests (calculator + 4 agent tool tests)
+- `make calculator_test` — Run just calculator tests
+- `make calculator_run ARGS="..."` — Run calculator with expression
+
+---
+
 ## Purpose
 
 This is a learning project implementing an AI agent using Google's Gemini API. The current state is a minimal working scaffold — a single-prompt, single-response call to a Gemini model.
@@ -221,3 +239,29 @@ STDOUT:
 - The program is stateless — no conversation history is maintained between runs.
 - The prompt is supplied as a required positional CLI argument; running without one will print usage help and exit.
 - Error handling covers two cases: missing `GEMINI_API_KEY` environment variable, and a `None` `usage_metadata` on the response (which would indicate a failed API request).
+
+---
+
+## Next Steps for Agent Development
+
+**Phase 1: Tool Integration (Immediate)**
+- Integrate the four agent tools with the Gemini API using tool/function calling
+- Parse tool responses from the LLM and execute corresponding functions
+- Return tool results back to the model for iterative reasoning
+
+**Phase 2: Conversation Loop (Important)**
+- Implement multi-turn conversation with message history
+- Allow the agent to reason through tasks over multiple turns
+- Test with the calculator project as a workflow example
+
+**Phase 3: Extended Capabilities (Future)**
+- Add error recovery and retry logic for failed tool calls
+- Implement cost/token budgeting to manage API usage
+- Add support for additional tools (file deletion, directory creation, etc.)
+- Persistent session state if needed
+
+**Phase 4: Production Hardening (Later)**
+- Comprehensive input validation and sanitization
+- Rate limiting and request throttling
+- Audit logging of agent actions
+- Formal security review for production use
