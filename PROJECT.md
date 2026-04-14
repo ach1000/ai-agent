@@ -15,7 +15,8 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 1. `main.py` is the sole entry point.
 2. On startup, it loads environment variables from a `.env` file using `python-dotenv`.
 3. It reads `GEMINI_API_KEY` from the environment and raises a `RuntimeError` if it is missing.
-4. It instantiates a `google.genai.Client` and calls `client.models.generate_content()` with a hardcoded prompt asking why Boot.dev is a great place to learn backend development.
+4. It parses a required positional CLI argument `user_prompt` using `argparse`.
+5. It instantiates a `google.genai.Client` and calls `client.models.generate_content()` with the user-provided prompt.
 5. It checks that `response.usage_metadata` is not `None`; raises a `RuntimeError` with a helpful message if it is.
 6. It prints the prompt token count and response (candidates) token count from `usage_metadata`.
 7. The response text is printed to stdout.
@@ -56,12 +57,14 @@ Python ≥ 3.13 is required.
 ## Model
 
 - Currently uses `gemini-2.5-flash`.
-- The prompt is hardcoded in `main.py`. There is no conversation loop, tool use, or persistent state yet — this is the starting scaffold for an agent that will likely grow to include those features.
+- The prompt is supplied at runtime as a positional CLI argument (e.g. `uv run main.py "Your question here"`).
+- `make run` passes a default prompt for convenience.
+- There is no conversation loop, tool use, or persistent state yet — this is the starting scaffold for an agent that will likely grow to include those features.
 
 ---
 
 ## Assumptions & Known Constraints
 
 - The program is stateless — no conversation history is maintained between runs.
-- There is no CLI argument parsing; all configuration is via environment variables or code edits.
+- The prompt is supplied as a required positional CLI argument; running without one will print usage help and exit.
 - Error handling covers two cases: missing `GEMINI_API_KEY` environment variable, and a `None` `usage_metadata` on the response (which would indicate a failed API request).
