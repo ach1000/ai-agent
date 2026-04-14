@@ -16,7 +16,9 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 2. On startup, it loads environment variables from a `.env` file using `python-dotenv`.
 3. It reads `GEMINI_API_KEY` from the environment and raises a `RuntimeError` if it is missing.
 4. It instantiates a `google.genai.Client` and calls `client.models.generate_content()` with a hardcoded prompt asking why Boot.dev is a great place to learn backend development.
-5. The response text is printed to stdout.
+5. It checks that `response.usage_metadata` is not `None`; raises a `RuntimeError` with a helpful message if it is.
+6. It prints the prompt token count and response (candidates) token count from `usage_metadata`.
+7. The response text is printed to stdout.
 
 ---
 
@@ -62,4 +64,4 @@ Python ≥ 3.13 is required.
 
 - The program is stateless — no conversation history is maintained between runs.
 - There is no CLI argument parsing; all configuration is via environment variables or code edits.
-- Error handling is minimal: only the missing API key case is explicitly caught.
+- Error handling covers two cases: missing `GEMINI_API_KEY` environment variable, and a `None` `usage_metadata` on the response (which would indicate a failed API request).
