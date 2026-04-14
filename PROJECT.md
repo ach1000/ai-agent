@@ -35,6 +35,9 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 | `calculator/tests.py` | Unit tests for the calculator (9 tests, all passing) |
 | `calculator/pkg/calculator.py` | Core `Calculator` class with operator precedence evaluation |
 | `calculator/pkg/render.py` | JSON output formatting utility |
+| `functions/` | **Agent tool functions** — functions the AI agent can call |
+| `functions/get_files_info.py` | Lists directory contents with metadata (name, size, is_dir) with path validation |
+| `test_get_files_info.py` | Test harness for the `get_files_info` function |
 
 ---
 
@@ -89,6 +92,28 @@ uv run calculator/tests.py                 # All 9 tests pass
 - Infix notation evaluation using stack-based operator precedence algorithm
 - JSON output formatting for results
 - Comprehensive error handling (invalid tokens, insufficient operands, etc.)
+
+---
+
+## Agent Tools
+
+Functions in the `functions/` directory that the AI agent can call to perform actions.
+
+### `get_files_info(working_directory, directory=".")`
+
+Lists the contents of a directory with metadata (file name, size in bytes, and whether it's a directory).
+
+**Security feature:** The `working_directory` parameter restricts the agent's view. Any attempt to escape outside this directory (e.g., using `../` or absolute paths like `/bin`) returns an error. This prevents the agent from accessing sensitive files or locations.
+
+**Returns:** A formatted string with one line per entry:
+```
+- filename: file_size=1234 bytes, is_dir=False
+- dirname: file_size=5678 bytes, is_dir=True
+```
+
+Or an error string if the target directory is invalid or outside the working directory.
+
+**Test:** Run `uv run test_get_files_info.py` to verify the function.
 
 ---
 
