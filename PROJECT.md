@@ -16,8 +16,8 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 2. On startup, it loads environment variables from a `.env` file using `python-dotenv`.
 3. It reads `GEMINI_API_KEY` from the environment and raises a `RuntimeError` if it is missing.
 4. It parses a required positional CLI argument `user_prompt` using `argparse`.
-5. It instantiates a `google.genai.Client`, wraps the prompt in a `types.Content(role="user", ...)` message list, and calls `generate_content(client, messages)`.
-6. `generate_content()` calls the Gemini API, checks that `response.usage_metadata` is not `None` (raises `RuntimeError` if so), prints prompt and response token counts, then prints the response text.
+5. It instantiates a `google.genai.Client`, wraps the prompt in a `types.Content(role="user", ...)` message list, optionally prints `User prompt: ...` if `--verbose`, and calls `generate_content(client, messages, verbose=args.verbose)`.
+6. `generate_content()` calls the Gemini API, checks that `response.usage_metadata` is not `None` (raises `RuntimeError` if so), prints prompt and response token counts if `verbose=True`, then prints the response text.
 
 ---
 
@@ -54,8 +54,8 @@ Python ≥ 3.13 is required.
 
 ## Code Structure
 
-- `main()` — entry point: parses args, loads env, builds client and message list, calls `generate_content()`.
-- `generate_content(client, messages)` — makes the API call, validates metadata, and prints token usage and response text.
+- `main()` — entry point: parses args (positional `user_prompt` and optional `--verbose`), loads env, builds client and message list, calls `generate_content()`.
+- `generate_content(client, messages, verbose=False)` — makes the API call, validates metadata, prints token usage (only when `verbose=True`), and prints the response text.
 
 ---
 
