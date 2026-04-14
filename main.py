@@ -2,6 +2,20 @@ import argparse
 import os
 from dotenv import load_dotenv
 from google import genai
+from google.genai import types
+
+
+def generate_content(client, messages):
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=messages,
+    )
+    if response.usage_metadata is None:
+        raise RuntimeError("No usage metadata in response, the API request may have failed.")
+    print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+    print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+    print("Response:")
+    print(response.text)
 
 
 def main():
@@ -16,16 +30,8 @@ def main():
         raise RuntimeError("GEMINI_API_KEY environment variable not found. Please set it in your .env file.")
 
     client = genai.Client(api_key=api_key)
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=args.user_prompt,
-    )
-    if response.usage_metadata is None:
-        raise RuntimeError("No usage metadata in response, the API request may have failed.")
-    print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-    print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
-    print("Response:")
-    print(response.text)
+    messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
+    generate_content(client, messages)
 
 
 if __name__ == "__main__":

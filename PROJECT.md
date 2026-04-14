@@ -16,10 +16,8 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 2. On startup, it loads environment variables from a `.env` file using `python-dotenv`.
 3. It reads `GEMINI_API_KEY` from the environment and raises a `RuntimeError` if it is missing.
 4. It parses a required positional CLI argument `user_prompt` using `argparse`.
-5. It instantiates a `google.genai.Client` and calls `client.models.generate_content()` with the user-provided prompt.
-5. It checks that `response.usage_metadata` is not `None`; raises a `RuntimeError` with a helpful message if it is.
-6. It prints the prompt token count and response (candidates) token count from `usage_metadata`.
-7. The response text is printed to stdout.
+5. It instantiates a `google.genai.Client`, wraps the prompt in a `types.Content(role="user", ...)` message list, and calls `generate_content(client, messages)`.
+6. `generate_content()` calls the Gemini API, checks that `response.usage_metadata` is not `None` (raises `RuntimeError` if so), prints prompt and response token counts, then prints the response text.
 
 ---
 
@@ -51,6 +49,13 @@ Python ≥ 3.13 is required.
 - **Package manager:** `uv` (not pip). Use `uv sync` to install deps, `uv run main.py` to execute.
 - **Virtual environment:** `.venv/` in the project root (standard `uv` layout).
 - **API key:** Stored in `.env` as `GEMINI_API_KEY`. Never commit this file.
+
+---
+
+## Code Structure
+
+- `main()` — entry point: parses args, loads env, builds client and message list, calls `generate_content()`.
+- `generate_content(client, messages)` — makes the API call, validates metadata, and prints token usage and response text.
 
 ---
 
