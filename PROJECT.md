@@ -25,11 +25,16 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 
 | File/Dir | Purpose |
 |---|---|
-| `main.py` | Entry point and all application logic |
+| `main.py` | Entry point and all application logic for the AI agent |
 | `pyproject.toml` | Project metadata and dependency declarations (managed by `uv`) |
 | `Makefile` | Convenience targets: `make sync` (install deps) and `make run` (run the program) |
 | `.env` | **Not committed.** Must contain `GEMINI_API_KEY=<your key>` |
 | `PROJECT.md` | This file — agent knowledge base |
+| `calculator/` | **Test project for the AI agent** — a command-line calculator app |
+| `calculator/main.py` | CLI entry point for the calculator app |
+| `calculator/tests.py` | Unit tests for the calculator (9 tests, all passing) |
+| `calculator/pkg/calculator.py` | Core `Calculator` class with operator precedence evaluation |
+| `calculator/pkg/render.py` | JSON output formatting utility |
 
 ---
 
@@ -65,6 +70,25 @@ Python ≥ 3.13 is required.
 - The prompt is supplied at runtime as a positional CLI argument (e.g. `uv run main.py "Your question here"`).
 - `make run` passes a default prompt for convenience.
 - There is no conversation loop, tool use, or persistent state yet — this is the starting scaffold for an agent that will likely grow to include those features.
+
+---
+
+## Test Project: Calculator App
+
+A command-line calculator app is included as a test project for the AI agent to read, modify, and execute. This serves as a sandbox for agent capabilities.
+
+**Running the calculator:**
+```bash
+uv run calculator/main.py "3 + 5"          # Output: {"expression": "3 + 5", "result": 8}
+uv run calculator/tests.py                 # All 9 tests pass
+```
+
+**Calculator features:**
+- Supports `+`, `-`, `*`, `/` operators
+- Proper operator precedence (multiplication/division before addition/subtraction)
+- Infix notation evaluation using stack-based operator precedence algorithm
+- JSON output formatting for results
+- Comprehensive error handling (invalid tokens, insufficient operands, etc.)
 
 ---
 
