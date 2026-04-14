@@ -11,6 +11,7 @@ test:
 	uv run test_get_files_info.py
 	uv run test_get_file_content.py
 	uv run test_write_file.py
+	uv run test_run_python_file.py
 
 calculator_test:
 	uv run calculator/tests.py

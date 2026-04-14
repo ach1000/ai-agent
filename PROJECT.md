@@ -41,9 +41,11 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 | `functions/get_files_info.py` | Lists directory contents with metadata (name, size, is_dir) with path validation |
 | `functions/get_file_content.py` | Reads file contents with truncation at 10k characters and path validation |
 | `functions/write_file.py` | Writes/overwrites files with path validation and automatic directory creation |
+| `functions/run_python_file.py` | Executes Python files with path validation and 30-second timeout |
 | `test_get_files_info.py` | Unit tests for the `get_files_info` function (4 tests) |
 | `test_get_file_content.py` | Unit tests for the `get_file_content` function (5 tests, creates temporary test files) |
 | `test_write_file.py` | Unit tests for the `write_file` function (3 tests, with cleanup) |
+| `test_run_python_file.py` | Unit tests for the `run_python_file` function (6 tests) |
 
 ---
 
@@ -167,6 +169,42 @@ Successfully wrote to "pkg/morelorem.txt" (26 characters written)
 ```
 
 **Test:** Run `uv run test_write_file.py` to verify the function.
+
+### `run_python_file(working_directory, file_path, args=None)`
+
+Executes a Python file within a working_directory with optional command-line arguments.
+
+**Security features:**
+- The `working_directory` parameter restricts code execution. Only Python files within this directory can be executed.
+- Only `.py` files can be executed (prevents accidental execution of non-Python files).
+- **30-second timeout** to prevent infinite execution or resource exhaustion.
+- Returns stdout/stderr separately so the LLM can see both output and errors.
+
+**⚠️  SECURITY WARNING:** This function allows arbitrary Python code execution within the working directory. This is intentionally limited for educational purposes. **Do NOT use this in production or with untrusted inputs.** The LLM could potentially:
+- Read/write files outside the working directory (if you're not careful with isolation)
+- Consume resources
+- Call external commands
+- Access network connections
+
+**Parameters:**
+- `working_directory`: Base directory to restrict execution to
+- `file_path`: Relative path to the Python file to execute
+- `args`: Optional list of command-line arguments to pass to the script
+
+**Returns:** 
+- On success: Combined output string with optional exit code and STDOUT/STDERR labels
+- On error: Error string describing why execution failed
+
+**Example output:**
+```
+STDOUT:
+{
+  "expression": "3 + 5",
+  "result": 8
+}
+```
+
+**Test:** Run `uv run test_run_python_file.py` to verify the function.
 
 ---
 
