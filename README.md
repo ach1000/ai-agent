@@ -55,10 +55,18 @@ All operations are restricted to a designated working directory for safety.
 │   ├── get_files_info.py
 │   ├── get_file_content.py
 │   ├── write_file.py
-│   └── run_python_file.py
-├── main.py                 # Entry point
+│   ├── run_python_file.py
+│   └── call_function.py    # Dispatcher + FunctionDeclaration schemas
+├── main.py                 # Entry point + agentic loop
+├── prompts.py              # System prompt
 ├── config.py               # Configuration constants
 ├── Makefile                # Build targets
+├── integration_test_call_function.py
+├── test_function_schemas.py
+├── test_get_files_info.py
+├── test_get_file_content.py
+├── test_write_file.py
+├── test_run_python_file.py
 ├── PROJECT.md               # Technical documentation (for next agent)
 └── README.md               # This file
 ```
@@ -69,7 +77,9 @@ All operations are restricted to a designated working directory for safety.
 |---------|---------|
 | `make sync` | Install dependencies |
 | `make run` | Run the agent with a sample prompt |
-| `make test` | Run all 27 unit tests |
+| `make test` | Run all 33 unit/schema tests |
+| `make integration_test` | Run 9 call_function integration tests |
+| `make functional_test` | Run the full agent with a real prompt (network) |
 | `make calculator_test` | Run calculator tests only |
 | `make calculator_run ARGS="3 + 5"` | Test the calculator directly |
 
@@ -121,13 +131,17 @@ The project includes comprehensive unit tests across five test modules:
 | `test_get_file_content.py` | 5 | File reading with truncation |
 | `test_write_file.py` | 3 | File writing |
 | `test_run_python_file.py` | 6 | Python execution |
+| `test_function_schemas.py` | 6 | FunctionDeclaration structure |
 
-**Total: 27 tests, all passing** ✓
+**Total: 33 unit/schema tests, all passing** ✓
 
-Run all tests with:
-```bash
-make test
-```
+Integration tests (no network, real filesystem):
+
+| Module | Tests | Purpose |
+|--------|-------|---------|
+| `integration_test_call_function.py` | 9 | call_function dispatch pipeline |
+
+Run with `make integration_test`.
 
 ## Security Notes
 
@@ -150,20 +164,14 @@ make test
 
 ## Architecture
 
-The current implementation is a minimal scaffold:
+1. **User provides a prompt** via CLI (`uv run main.py "your question"`)
+2. **Agentic loop** (max 20 iterations):
+   - Calls Gemini API with current message history and available tools
+   - If the model requests function calls, they are dispatched, results are fed back into the conversation, and the loop continues
+   - If the model returns a text response, it is printed as the final answer and the loop exits
+3. **All file/execution operations** are sandboxed to `./calculator`
 
-1. **User provides a prompt** via CLI
-2. **Agent calls Gemini API** with the prompt
-3. **Model generates a response** and returns it
-4. **Output is printed** to the user
-
-The next phase will add:
-- Tool calling integration (LLM invokes functions)
-- Multi-turn conversation
-- Message history
-- Iterative task completion
-
-See [PROJECT.md](PROJECT.md) for detailed technical documentation and development roadmap.
+See [PROJECT.md](PROJECT.md) for detailed technical documentation.
 
 ## Dependencies
 

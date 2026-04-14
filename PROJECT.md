@@ -28,7 +28,7 @@ make run            # Try the AI agent with a sample prompt
 
 ## Purpose
 
-This is a learning project implementing an AI agent using Google's Gemini API. The current state is a minimal working scaffold — a single-prompt, single-response call to a Gemini model.
+This is a learning project implementing an AI coding agent using Google's Gemini API. The agent can autonomously read directories, read files, write files, and execute Python scripts to answer questions about a codebase. It runs an agentic loop, calling tools and feeding results back to the model until it produces a final text response.
 
 ---
 
@@ -37,9 +37,9 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 1. `main.py` is the sole entry point.
 2. On startup, it loads environment variables from a `.env` file using `python-dotenv`.
 3. It reads `GEMINI_API_KEY` from the environment and raises a `RuntimeError` if it is missing.
-4. It parses a required positional CLI argument `user_prompt` using `argparse`.
-5. It instantiates a `google.genai.Client`, wraps the prompt in a `types.Content(role="user", ...)` message list, optionally prints `User prompt: ...` if `--verbose`, and calls `generate_content(client, messages, verbose=args.verbose)`.
-6. `generate_content()` calls the Gemini API, checks that `response.usage_metadata` is not `None` (raises `RuntimeError` if so), prints prompt and response token counts if `verbose=True`, then prints the response text.
+4. It parses a required positional CLI argument `user_prompt` (and optional `--verbose`) using `argparse`.
+5. It instantiates a `google.genai.Client` and builds an initial `messages` list with the user prompt.
+6. It runs an agentic loop (max 20 iterations): each iteration calls `generate_content`, appends model candidates to `messages`, and then either dispatches function calls via `call_function` (injecting `working_directory="./calculator"` and appending tool responses back to `messages`) or prints the final response and exits the loop.
 
 ---
 
@@ -51,7 +51,7 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 | `prompts.py` | Contains `system_prompt` — the system instruction passed to Gemini (now a helpful coding agent prompt) |
 | `functions/call_function.py` | Defines `available_functions` (`types.Tool`), `function_map` dict, and `call_function(function_call, verbose)` dispatcher — routes LLM `FunctionCall` objects to real functions, injects `working_directory="./calculator"`, and wraps results in `types.Content(role="tool", ...)` |
 | `pyproject.toml` | Project metadata and dependency declarations (managed by `uv`) |
-| `Makefile` | Convenience targets: `make sync`, `make run`, `make test`, `make calculator_test`, `make calculator_run` |
+| `Makefile` | Convenience targets: `make sync`, `make run`, `make test`, `make integration_test`, `make functional_test`, `make calculator_test`, `make calculator_run` |
 | `config.py` | Configuration constants (e.g., `MAX_FILE_CHARS`) |
 | `.env` | **Not committed.** Must contain `GEMINI_API_KEY=<your key>` |
 | `PROJECT.md` | This file — agent knowledge base |
@@ -97,9 +97,9 @@ Python ≥ 3.13 is required.
 
 ## Code Structure
 
-- `main()` — entry point: parses args (positional `user_prompt` and optional `--verbose`), loads env, builds client and message list, calls `generate_content()`.
+- `main()` — entry point: parses args, loads env, builds client and initial `messages` list, runs the agentic loop.
 - `generate_content(client, messages, verbose=False)` — makes a single API call with `system_instruction=system_prompt` and `tools=[available_functions]`, validates metadata, prints token usage if `verbose=True`, and **returns the raw response**.
-- `main()` — runs an agentic loop (max 20 iterations). Each iteration: calls `generate_content`, appends candidate `.content` to `messages`, then either dispatches all function calls via `call_function` (appending tool responses back to `messages` as `role="user"`) or prints `"Final response:"` + `response.text` and returns. Exits with code 1 if the iteration limit is reached.
+- `call_function(function_call, verbose=False)` — dispatches a `types.FunctionCall` to the appropriate real function, injects `working_directory="./calculator"`, and returns a `types.Content(role="tool", ...)` wrapping the result.
 
 ---
 
@@ -108,7 +108,6 @@ Python ≥ 3.13 is required.
 - Currently uses `gemini-2.5-flash`.
 - The prompt is supplied at runtime as a positional CLI argument (e.g. `uv run main.py "Your question here"`).
 - `make run` passes a default prompt for convenience.
-- There is no conversation loop, tool use, or persistent state yet — this is the starting scaffold for an agent that will likely grow to include those features.
 
 ---
 
@@ -246,23 +245,18 @@ STDOUT:
 
 ## Assumptions & Known Constraints
 
-- The program is stateless — no conversation history is maintained between runs.
+- The program is stateless between runs — no conversation history is persisted across separate invocations.
 - The prompt is supplied as a required positional CLI argument; running without one will print usage help and exit.
-- Error handling covers two cases: missing `GEMINI_API_KEY` environment variable, and a `None` `usage_metadata` on the response (which would indicate a failed API request).
+- The working directory for all tool calls is hard-coded to `./calculator`. To point the agent at a different project, update `call_function.py`.
+- Error handling covers: missing `GEMINI_API_KEY`, `None` `usage_metadata` on the response, and invalid/missing function call parts.
 
 ---
 
 ## Next Steps for Agent Development
 
-**Phase 1: Tool Integration (Immediate)**
-- Integrate the four agent tools with the Gemini API using tool/function calling
-- Parse tool responses from the LLM and execute corresponding functions
-- Return tool results back to the model for iterative reasoning
-
-**Phase 2: Conversation Loop (Important)**
-- Implement multi-turn conversation with message history
-- Allow the agent to reason through tasks over multiple turns
-- Test with the calculator project as a workflow example
+**Completed:**
+- ✓ Phase 1: Tool Integration — all four tools wired up with `FunctionDeclaration` schemas, dispatched via `call_function`, results fed back to the model
+- ✓ Phase 2: Conversation Loop — agentic loop (max 20 iterations) with full message history; model iterates until it produces a final text response
 
 **Phase 3: Extended Capabilities (Future)**
 - Add error recovery and retry logic for failed tool calls
