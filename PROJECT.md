@@ -44,7 +44,8 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 | File/Dir | Purpose |
 |---|---|
 | `main.py` | Entry point and all application logic for the AI agent |
-| `prompts.py` | Contains `system_prompt` — the hard-coded system instruction passed to Gemini |
+| `prompts.py` | Contains `system_prompt` — the system instruction passed to Gemini (now a helpful coding agent prompt) |
+| `functions/call_function.py` | Defines `available_functions` (`types.Tool`) listing all `FunctionDeclaration` schemas for the LLM |
 | `pyproject.toml` | Project metadata and dependency declarations (managed by `uv`) |
 | `Makefile` | Convenience targets: `make sync`, `make run`, `make test`, `make calculator_test`, `make calculator_run` |
 | `config.py` | Configuration constants (e.g., `MAX_FILE_CHARS`) |
@@ -57,7 +58,7 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 | `calculator/pkg/calculator.py` | Core `Calculator` class with operator precedence evaluation |
 | `calculator/pkg/render.py` | JSON output formatting utility |
 | `functions/` | **Agent tool functions** — functions the AI agent can call |
-| `functions/get_files_info.py` | Lists directory contents with metadata (name, size, is_dir) with path validation |
+| `functions/get_files_info.py` | Lists directory contents with metadata (name, size, is_dir) with path validation; also exports `schema_get_files_info` (`types.FunctionDeclaration`) |
 | `functions/get_file_content.py` | Reads file contents with truncation at 10k characters and path validation |
 | `functions/write_file.py` | Writes/overwrites files with path validation and automatic directory creation |
 | `functions/run_python_file.py` | Executes Python files with path validation and 30-second timeout |
@@ -90,7 +91,7 @@ Python ≥ 3.13 is required.
 ## Code Structure
 
 - `main()` — entry point: parses args (positional `user_prompt` and optional `--verbose`), loads env, builds client and message list, calls `generate_content()`.
-- `generate_content(client, messages, verbose=False)` — makes the API call with `system_instruction=system_prompt` via `types.GenerateContentConfig`, validates metadata, prints token usage (only when `verbose=True`), and prints the response text.
+- `generate_content(client, messages, verbose=False)` — makes the API call with `system_instruction=system_prompt` and `tools=[available_functions]` via `types.GenerateContentConfig`. Validates metadata, prints token usage if `verbose=True`. If `response.function_calls` is non-empty, prints each as `Calling function: name(args)`; otherwise prints `response.text`.
 
 ---
 
