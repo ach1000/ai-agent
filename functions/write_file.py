@@ -1,5 +1,4 @@
 import os
-from config import MAX_FILE_CHARS
 from google.genai import types
 
 schema_write_file = types.FunctionDeclaration(
