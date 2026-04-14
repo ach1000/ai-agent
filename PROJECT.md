@@ -11,6 +11,7 @@
 make sync           # Install dependencies (run once)
 make test           # Run all 33 unit/schema tests (verify everything works)
 make integration_test  # Run 9 integration tests for call_function dispatch
+make functional_test   # Run full agent with a hardwired prompt (network call)
 make run            # Try the AI agent with a sample prompt
 ```
 
@@ -19,6 +20,7 @@ make run            # Try the AI agent with a sample prompt
 - `make run` — Run the agent with default prompt
 - `make test` — Run all 33 unit/schema tests (calculator + 5 agent tool/schema tests)
 - `make integration_test` — Run 9 integration tests for call_function dispatch (no network)
+- `make functional_test` — Run the full agent against a real prompt (makes network call to Gemini)
 - `make calculator_test` — Run just calculator tests
 - `make calculator_run ARGS="..."` — Run calculator with expression
 
@@ -96,7 +98,8 @@ Python ≥ 3.13 is required.
 ## Code Structure
 
 - `main()` — entry point: parses args (positional `user_prompt` and optional `--verbose`), loads env, builds client and message list, calls `generate_content()`.
-- `generate_content(client, messages, verbose=False)` — makes the API call with `system_instruction=system_prompt` and `tools=[available_functions]` via `types.GenerateContentConfig`. Validates metadata, prints token usage if `verbose=True`. If `response.function_calls` is non-empty, calls `call_function` for each, validates the returned `Content` (non-empty parts, non-None `function_response` and `.response`), and accumulates `parts[0]` into a `function_results` list. Prints verbose response if enabled. Otherwise prints `response.text`.
+- `generate_content(client, messages, verbose=False)` — makes a single API call with `system_instruction=system_prompt` and `tools=[available_functions]`, validates metadata, prints token usage if `verbose=True`, and **returns the raw response**.
+- `main()` — runs an agentic loop (max 20 iterations). Each iteration: calls `generate_content`, appends candidate `.content` to `messages`, then either dispatches all function calls via `call_function` (appending tool responses back to `messages` as `role="user"`) or prints `"Final response:"` + `response.text` and returns. Exits with code 1 if the iteration limit is reached.
 
 ---
 

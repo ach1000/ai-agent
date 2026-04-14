@@ -20,22 +20,7 @@ def generate_content(client, messages, verbose=False):
     if verbose:
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
-    if response.function_calls:
-        function_results = []
-        for fc in response.function_calls:
-            function_call_result = call_function(fc, verbose=verbose)
-            if not function_call_result.parts:
-                raise RuntimeError(f"Function call '{fc.name}' returned no parts")
-            function_response = function_call_result.parts[0].function_response
-            if function_response is None:
-                raise RuntimeError(f"Function call '{fc.name}' returned no function_response")
-            if function_response.response is None:
-                raise RuntimeError(f"Function call '{fc.name}' returned no response data")
-            if verbose:
-                print(f"-> {function_response.response}")
-            function_results.append(function_call_result.parts[0])
-    else:
-        print(response.text)
+    return response
 
 
 def main():
@@ -54,7 +39,36 @@ def main():
     messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
     if args.verbose:
         print(f"User prompt: {args.user_prompt}")
-    generate_content(client, messages, verbose=args.verbose)
+
+    for _ in range(20):
+        response = generate_content(client, messages, verbose=args.verbose)
+
+        if response.candidates:
+            for candidate in response.candidates:
+                messages.append(candidate.content)
+
+        if response.function_calls:
+            function_responses = []
+            for fc in response.function_calls:
+                function_call_result = call_function(fc, verbose=args.verbose)
+                if not function_call_result.parts:
+                    raise RuntimeError(f"Function call '{fc.name}' returned no parts")
+                function_response = function_call_result.parts[0].function_response
+                if function_response is None:
+                    raise RuntimeError(f"Function call '{fc.name}' returned no function_response")
+                if function_response.response is None:
+                    raise RuntimeError(f"Function call '{fc.name}' returned no response data")
+                if args.verbose:
+                    print(f"-> {function_response.response}")
+                function_responses.append(function_call_result.parts[0])
+            messages.append(types.Content(role="user", parts=function_responses))
+        else:
+            print("Final response:")
+            print(response.text)
+            return
+
+    print("Error: maximum iterations reached without a final response.")
+    raise SystemExit(1)
 
 
 if __name__ == "__main__":

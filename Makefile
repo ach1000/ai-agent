@@ -1,4 +1,4 @@
-.PHONY: sync run test integration_test calculator_test calculator_run
+.PHONY: sync run test integration_test functional_test calculator_test calculator_run
 
 sync:
 	uv sync
@@ -16,6 +16,9 @@ test:
 
 integration_test:
 	uv run integration_test_call_function.py
+
+functional_test:
+	uv run main.py "how does the calculator render results to the console?"
 
 calculator_test:
 	uv run calculator/tests.py
