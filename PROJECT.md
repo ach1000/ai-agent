@@ -9,14 +9,16 @@
 **Setup & Testing:**
 ```bash
 make sync           # Install dependencies (run once)
-make test           # Run all 27 tests (verify everything works)
+make test           # Run all 33 unit/schema tests (verify everything works)
+make integration_test  # Run 9 integration tests for call_function dispatch
 make run            # Try the AI agent with a sample prompt
 ```
 
 **Available Makefile targets:**
 - `make sync` — Install dependencies into `.venv/`
 - `make run` — Run the agent with default prompt
-- `make test` — Run all unit tests (calculator + 4 agent tool tests)
+- `make test` — Run all 33 unit/schema tests (calculator + 5 agent tool/schema tests)
+- `make integration_test` — Run 9 integration tests for call_function dispatch (no network)
 - `make calculator_test` — Run just calculator tests
 - `make calculator_run ARGS="..."` — Run calculator with expression
 
@@ -45,7 +47,7 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 |---|---|
 | `main.py` | Entry point and all application logic for the AI agent |
 | `prompts.py` | Contains `system_prompt` — the system instruction passed to Gemini (now a helpful coding agent prompt) |
-| `functions/call_function.py` | Defines `available_functions` (`types.Tool`) listing all four `FunctionDeclaration` schemas for the LLM |
+| `functions/call_function.py` | Defines `available_functions` (`types.Tool`), `function_map` dict, and `call_function(function_call, verbose)` dispatcher — routes LLM `FunctionCall` objects to real functions, injects `working_directory="./calculator"`, and wraps results in `types.Content(role="tool", ...)` |
 | `pyproject.toml` | Project metadata and dependency declarations (managed by `uv`) |
 | `Makefile` | Convenience targets: `make sync`, `make run`, `make test`, `make calculator_test`, `make calculator_run` |
 | `config.py` | Configuration constants (e.g., `MAX_FILE_CHARS`) |
@@ -62,10 +64,13 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 | `functions/get_file_content.py` | Reads file contents with truncation at 10k characters and path validation; also exports `schema_get_file_content` (`types.FunctionDeclaration`) |
 | `functions/write_file.py` | Writes/overwrites files with path validation and automatic directory creation; also exports `schema_write_file` (`types.FunctionDeclaration`) |
 | `functions/run_python_file.py` | Executes Python files with path validation and 30-second timeout; also exports `schema_run_python_file` (`types.FunctionDeclaration`) |
+| `functions/call_function.py` | Defines `available_functions` (`types.Tool`), `function_map` dict, and `call_function(function_call, verbose)` dispatcher — routes LLM `FunctionCall` objects to real functions, injects `working_directory="./calculator"`, and wraps results in `types.Content(role="tool", ...)` |
 | `test_get_files_info.py` | Unit tests for the `get_files_info` function (4 tests) |
 | `test_get_file_content.py` | Unit tests for the `get_file_content` function (5 tests, creates temporary test files) |
 | `test_write_file.py` | Unit tests for the `write_file` function (3 tests, with cleanup) |
 | `test_run_python_file.py` | Unit tests for the `run_python_file` function (6 tests) |
+| `test_function_schemas.py` | Unit tests for all four `FunctionDeclaration` schemas (6 tests) |
+| `integration_test_call_function.py` | Integration tests for `call_function` dispatch — no network calls (9 tests, `make integration_test`) |
 
 ---
 
@@ -91,7 +96,7 @@ Python ≥ 3.13 is required.
 ## Code Structure
 
 - `main()` — entry point: parses args (positional `user_prompt` and optional `--verbose`), loads env, builds client and message list, calls `generate_content()`.
-- `generate_content(client, messages, verbose=False)` — makes the API call with `system_instruction=system_prompt` and `tools=[available_functions]` via `types.GenerateContentConfig`. Validates metadata, prints token usage if `verbose=True`. If `response.function_calls` is non-empty, prints each as `Calling function: name(args)`; otherwise prints `response.text`.
+- `generate_content(client, messages, verbose=False)` — makes the API call with `system_instruction=system_prompt` and `tools=[available_functions]` via `types.GenerateContentConfig`. Validates metadata, prints token usage if `verbose=True`. If `response.function_calls` is non-empty, calls `call_function` for each, validates the returned `Content` (non-empty parts, non-None `function_response` and `.response`), and accumulates `parts[0]` into a `function_results` list. Prints verbose response if enabled. Otherwise prints `response.text`.
 
 ---
 

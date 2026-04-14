@@ -1,4 +1,4 @@
-.PHONY: sync run test calculator_test calculator_run
+.PHONY: sync run test integration_test calculator_test calculator_run
 
 sync:
 	uv sync
@@ -13,6 +13,9 @@ test:
 	uv run test_write_file.py
 	uv run test_run_python_file.py
 	uv run test_function_schemas.py
+
+integration_test:
+	uv run integration_test_call_function.py
 
 calculator_test:
 	uv run calculator/tests.py
