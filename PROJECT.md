@@ -40,8 +40,10 @@ This is a learning project implementing an AI agent using Google's Gemini API. T
 | `functions/` | **Agent tool functions** — functions the AI agent can call |
 | `functions/get_files_info.py` | Lists directory contents with metadata (name, size, is_dir) with path validation |
 | `functions/get_file_content.py` | Reads file contents with truncation at 10k characters and path validation |
+| `functions/write_file.py` | Writes/overwrites files with path validation and automatic directory creation |
 | `test_get_files_info.py` | Unit tests for the `get_files_info` function (4 tests) |
-| `test_get_file_content.py` | Unit tests for the `get_file_content` function (5 tests) |
+| `test_get_file_content.py` | Unit tests for the `get_file_content` function (5 tests, creates temporary test files) |
+| `test_write_file.py` | Unit tests for the `write_file` function (3 tests, with cleanup) |
 
 ---
 
@@ -142,6 +144,29 @@ Lorem ipsum dolor sit amet...
 ```
 
 **Test:** Run `uv run test_get_file_content.py` to verify the function.
+
+### `write_file(working_directory, file_path, content)`
+
+Writes content to a file relative to a working_directory. Creates parent directories automatically if needed.
+
+**Security features:**
+- The `working_directory` parameter restricts where files can be written. Absolute paths or paths that escape the working directory are blocked.
+- Cannot write to existing directories (only to files).
+- Returns success/error feedback for the LLM to confirm the action.
+
+**Parameters:**
+- `working_directory`: Base directory to restrict access to
+- `file_path`: Relative path to the file to write
+- `content`: The text content to write
+
+**Returns:** A success message with the character count written, or an error string if validation fails or writing fails.
+
+**Example output:**
+```
+Successfully wrote to "pkg/morelorem.txt" (26 characters written)
+```
+
+**Test:** Run `uv run test_write_file.py` to verify the function.
 
 ---
 

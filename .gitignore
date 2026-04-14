@@ -12,3 +12,6 @@ wheels/
 
 # VSCode settings
 .vscode/
+
+# Test files
+calculator/pkg/morelorem.txt

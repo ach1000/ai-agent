@@ -8,9 +8,9 @@ TEST_MAX_FILE_CHARS = 2000
 class TestGetFileContent(unittest.TestCase):
     def test_lorem_ipsum_truncation(self):
         """Test that large files are truncated at MAX_FILE_CHARS"""
-        result = get_file_content("calculator", "lorem.txt")
+        result = get_file_content("calculator", "lorem_ipsum.txt")
         
-        print(f"\nget_file_content('calculator', 'lorem.txt'):")
+        print(f"\nget_file_content('calculator', 'lorem_ipsum.txt'):")
         print(f"Content length: {len(result)} characters")
         print(f"Last 100 characters:\n  {result[-100:]}")
         
