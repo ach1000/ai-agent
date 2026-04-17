@@ -9,6 +9,7 @@
 **Setup & Testing:**
 ```bash
 make sync           # Install dependencies (run once)
+make clean          # Remove generated caches and temporary test artifacts
 make test           # Run all 33 unit/schema tests (verify everything works)
 make integration_test  # Run 9 integration tests for call_function dispatch
 make functional_test   # Run full agent with a hardwired prompt (network call)
@@ -17,6 +18,7 @@ make run            # Try the AI agent with a sample prompt
 
 **Available Makefile targets:**
 - `make sync` — Install dependencies into `.venv/`
+- `make clean` — Remove generated Python caches, coverage artifacts, and the ignored `calculator/pkg/morelorem.txt` test artifact without deleting `.venv/`
 - `make run` — Run the agent with default prompt
 - `make test` — Run all 33 unit/schema tests (calculator + 5 agent tool/schema tests)
 - `make integration_test` — Run 9 integration tests for call_function dispatch (no network)
@@ -90,7 +92,7 @@ Python ≥ 3.13 is required.
 ## Environment & Tooling
 
 - **Package manager:** `uv` (not pip). Use `uv sync` to install deps, `uv run main.py` to execute.
-- **Virtual environment:** `.venv/` in the project root (standard `uv` layout).
+- **Virtual environment:** `.venv/` in the project root (standard `uv` layout). `make clean` deliberately preserves this directory.
 - **API key:** Stored in `.env` as `GEMINI_API_KEY`. Never commit this file.
 
 ---

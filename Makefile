@@ -1,4 +1,4 @@
-.PHONY: sync run test integration_test functional_test calculator_test calculator_run
+.PHONY: sync run test integration_test functional_test calculator_test calculator_run clean
 
 sync:
 	uv sync
@@ -25,3 +25,8 @@ calculator_test:
 
 calculator_run:
 	uv run calculator/main.py $(ARGS)
+
+clean:
+	find . -path './.venv' -prune -o -type d \( -name '__pycache__' -o -name '.pytest_cache' -o -name '.mypy_cache' -o -name '.ruff_cache' -o -name 'htmlcov' \) -exec rm -rf {} +
+	find . -type f ! -path './.venv/*' \( -name '*.pyc' -o -name '*.pyo' -o -name '.coverage' -o -name '.coverage.*' \) -delete
+	rm -f calculator/pkg/morelorem.txt

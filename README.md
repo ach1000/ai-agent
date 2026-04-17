@@ -76,6 +76,7 @@ All operations are restricted to a designated working directory for safety.
 | Command | Purpose |
 |---------|---------|
 | `make sync` | Install dependencies |
+| `make clean` | Remove generated caches, coverage files, and temporary test artifacts |
 | `make run` | Run the agent with a sample prompt |
 | `make test` | Run all 33 unit/schema tests |
 | `make integration_test` | Run 9 call_function integration tests |
