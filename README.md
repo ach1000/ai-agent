@@ -91,6 +91,8 @@ The agent has access to four tools:
 ### 1. `get_files_info(working_directory, directory)`
 Lists directory contents with file metadata (size, type).
 
+Note: `file_size` is reported from `os.path.getsize` for each listed item (including directories).
+
 ```
 - main.py: file_size=719 bytes, is_dir=False
 - pkg: file_size=5992 bytes, is_dir=True
